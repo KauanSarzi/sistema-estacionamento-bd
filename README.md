@@ -100,11 +100,13 @@ erDiagram
 
 ---
 
-## 💾 Script SQL
+## 💾 Script SQL e Documentação
 
-O arquivo `item3eitem5.txt` contém o script completo para a criação do banco de dados, inserção de dados de exemplo e as consultas solicitadas.
+### 1. Script SQL
 
-### 1. Estrutura do Script
+O arquivo **`script_sql_completo.sql`** contém o script completo para a criação do banco de dados, inserção de dados de exemplo e as consultas solicitadas.
+
+#### Estrutura do Script
 
 O script segue a ordem recomendada para execução:
 
@@ -113,7 +115,7 @@ O script segue a ordem recomendada para execução:
 3.  **`INSERT INTO`**: Inserção de dados fictícios para popular as tabelas.
 4.  **`SELECT`**: Quatro consultas SQL complexas para demonstrar a funcionalidade do banco de dados.
 
-### 2. Consultas SQL
+#### Consultas SQL
 
 As consultas foram elaboradas para atender aos requisitos do projeto, demonstrando a capacidade de extrair informações relevantes do sistema:
 
@@ -124,6 +126,14 @@ As consultas foram elaboradas para atender aos requisitos do projeto, demonstran
 | **5.3** (2 Tabelas, LEFT/RIGHT JOIN) | Calcula a nota média de avaliação para cada estacionamento (incluindo aqueles sem avaliação). | `SELECT e.nome, NVL(AVG(a.nota), 0) FROM Estacionamento e LEFT JOIN Avaliacao a ... GROUP BY e.nome` |
 | **5.4** (3+ Tabelas) | Lista o status da reserva, a disponibilidade da vaga e a nota de avaliação associada. | `SELECT u.nome, e.nome, v.disponivel, r.data_reserva, a.nota FROM Reserva r INNER JOIN Usuario u ... LEFT JOIN Avaliacao a ...` |
 
+### 2. Documentação
+
+Os documentos de apoio do projeto estão localizados na pasta `documentacao/`:
+
+*   **`documentacao/documento_projeto_completo.docx`**: Documento principal com a descrição do projeto, modelos ER e Relacional, e simulação de dados.
+*   **`documentacao/requisitos_modelagem_1bim.pdf`**: Documento com os requisitos do projeto do 1º bimestre (Modelagem).
+*   **`documentacao/requisitos_consultas_2bim.pdf`**: Documento com os requisitos do projeto do 2º bimestre (Consultas SQL).
+
 ---
 
 ## 🚀 Como Utilizar
@@ -131,14 +141,14 @@ As consultas foram elaboradas para atender aos requisitos do projeto, demonstran
 Para recriar o ambiente do projeto, siga os passos:
 
 1.  **Instalação do SGBD:** Certifique-se de ter acesso a um ambiente Oracle (local ou via Oracle Live SQL).
-2.  **Execução do Script:** Execute o conteúdo do arquivo `item3eitem5.txt` na ordem em que está.
+2.  **Execução do Script:** Execute o conteúdo do arquivo **`script_sql_completo.sql`** na ordem em que está.
     *   As instruções `DROP TABLE` limparão quaisquer tabelas existentes com os mesmos nomes.
     *   As instruções `CREATE TABLE` criarão o esquema.
     *   As instruções `INSERT INTO` popularão o banco de dados com dados de teste.
     *   As instruções `SELECT` podem ser executadas para verificar os resultados das consultas.
 
 ```sql
--- Exemplo de execução (conteúdo do item3eitem5.txt)
+-- Exemplo de execução (conteúdo do script_sql_completo.sql)
 -- DROP TABLE ...
 -- CREATE TABLE ...
 -- INSERT INTO ...
