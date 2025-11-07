@@ -1,0 +1,144 @@
+DROP TABLE Avaliacao CASCADE CONSTRAINTS;
+DROP TABLE Reserva CASCADE CONSTRAINTS;
+DROP TABLE Vaga_Estacionamento CASCADE CONSTRAINTS;
+DROP TABLE Estacionamento CASCADE CONSTRAINTS;
+DROP TABLE Usuario CASCADE CONSTRAINTS;
+
+
+CREATE TABLE Usuario (
+   id_usuario         NUMBER        PRIMARY KEY,
+   nome               VARCHAR2(100) NOT NULL,
+   email              VARCHAR2(100) UNIQUE NOT NULL,
+   senha              VARCHAR2(100) NOT NULL,
+   localizacao_atual  VARCHAR2(100)
+);
+
+CREATE TABLE Estacionamento (
+   id_estacionamento  NUMBER        PRIMARY KEY,
+   nome               VARCHAR2(100) NOT NULL,
+   endereco           VARCHAR2(200) NOT NULL,
+   preco_hora         NUMBER(6,2)   NOT NULL,
+   horario_abertura   VARCHAR2(5)   NOT NULL,
+   horario_fechamento VARCHAR2(5)   NOT NULL,
+   vagas_totais       NUMBER        NOT NULL
+);
+
+CREATE TABLE Vaga_Estacionamento (
+   id_vaga             NUMBER        PRIMARY KEY,
+   id_estacionamento   NUMBER        NOT NULL,
+   latitude            NUMBER(9,6)   NOT NULL,
+   longitude           NUMBER(9,6)   NOT NULL,
+   disponivel          CHAR(1)       CHECK (disponivel IN ('S','N')) NOT NULL,
+   horario_inicio      VARCHAR2(5),
+   horario_fim         VARCHAR2(5),
+   CONSTRAINT fk_vaga_est FOREIGN KEY (id_estacionamento)
+     REFERENCES Estacionamento(id_estacionamento)
+);
+
+CREATE TABLE Reserva (
+   id_reserva      NUMBER        PRIMARY KEY,
+   id_usuario      NUMBER        NOT NULL,
+   id_vaga         NUMBER        NOT NULL,
+   data_reserva    DATE          NOT NULL,
+   horario_reserva VARCHAR2(5)   NOT NULL,
+   CONSTRAINT fk_res_usuario FOREIGN KEY (id_usuario)
+     REFERENCES Usuario(id_usuario),
+   CONSTRAINT fk_res_vaga    FOREIGN KEY (id_vaga)
+     REFERENCES Vaga_Estacionamento(id_vaga)
+);
+
+CREATE TABLE Avaliacao (
+   id_avaliacao       NUMBER        PRIMARY KEY,
+   id_usuario         NUMBER        NOT NULL,
+   id_estacionamento  NUMBER        NOT NULL,
+   nota               NUMBER        CHECK (nota BETWEEN 1 AND 5),
+   comentario         VARCHAR2(255),
+   data_avaliacao     DATE          DEFAULT SYSDATE,
+   CONSTRAINT fk_avl_usuario FOREIGN KEY (id_usuario)
+     REFERENCES Usuario(id_usuario),
+   CONSTRAINT fk_avl_estac   FOREIGN KEY (id_estacionamento)
+     REFERENCES Estacionamento(id_estacionamento)
+);
+
+
+INSERT INTO Usuario VALUES (1, 'Ana Silva', 'ana@gmail.com', 'senha123', 'Rua A, Centro');
+INSERT INTO Usuario VALUES (2, 'Bruno Costa', 'bruno@gmail.com', 'senha456', 'Rua B, Bairro Novo');
+INSERT INTO Usuario VALUES (3, 'Carla Souza', 'carla@gmail.com', 'senha789', 'Av. Principal, 100');
+INSERT INTO Usuario VALUES (4, 'Daniel Lima', 'daniel@gmail.com', 'senha321', 'Rua C, Bairro Velho');
+INSERT INTO Usuario VALUES (5, 'Eduarda Pires', 'eduarda@gmail.com', 'senha654', 'Rua D, Centro');
+
+
+INSERT INTO Estacionamento VALUES (1, 'Estacionamento Central', 'Av. Brasil, 500', 5.00, '08:00', '20:00', 50);
+INSERT INTO Estacionamento VALUES (2, 'Estacionamento Norte', 'Rua das Flores, 200', 4.50, '07:00', '19:00', 30);
+INSERT INTO Estacionamento VALUES (3, 'Estacionamento Sul', 'Av. Sul, 1000', 6.00, '09:00', '22:00', 40);
+INSERT INTO Estacionamento VALUES (4, 'Estacionamento Leste', 'Rua Leste, 400', 4.00, '06:00', '18:00', 25);
+INSERT INTO Estacionamento VALUES (5, 'Estacionamento Oeste', 'Av. Oeste, 800', 5.50, '10:00', '23:00', 35);
+
+
+INSERT INTO Vaga_Estacionamento VALUES (1, 1, -23.550520, -46.633308, 'S', NULL, NULL);
+INSERT INTO Vaga_Estacionamento VALUES (2, 1, -23.550521, -46.633309, 'N', '10:00', '11:00');
+INSERT INTO Vaga_Estacionamento VALUES (3, 2, -23.552000, -46.632000, 'S', NULL, NULL);
+INSERT INTO Vaga_Estacionamento VALUES (4, 3, -23.553500, -46.630500, 'S', NULL, NULL);
+INSERT INTO Vaga_Estacionamento VALUES (5, 4, -23.555000, -46.628000, 'N', '09:00', '10:00');
+
+
+INSERT INTO Reserva VALUES (1, 1, 2, DATE '2025-05-25', '10:00');
+INSERT INTO Reserva VALUES (2, 2, 5, DATE '2025-05-26', '09:00');
+INSERT INTO Reserva VALUES (3, 3, 3, DATE '2025-05-27', '14:00');
+INSERT INTO Reserva VALUES (4, 4, 4, DATE '2025-05-28', '15:00');
+INSERT INTO Reserva VALUES (5, 5, 1, DATE '2025-05-29', '11:00');
+
+
+INSERT INTO Avaliacao VALUES (1, 1, 1, 5, 'Ótima localização!', DATE '2025-05-25');
+INSERT INTO Avaliacao VALUES (2, 2, 2, 4, 'Bom, mas poucas vagas.', DATE '2025-05-26');
+INSERT INTO Avaliacao VALUES (3, 3, 3, 3, 'Poderia ser mais barato.', DATE '2025-05-27');
+INSERT INTO Avaliacao VALUES (4, 4, 4, 5, 'Muito organizado.', DATE '2025-05-28');
+INSERT INTO Avaliacao VALUES (5, 5, 5, 4, 'Funcionários atenciosos.', DATE '2025-05-29');
+
+
+
+
+
+
+SELECT u.nome AS nome_usuario,
+       r.data_reserva,
+       r.horario_reserva
+  FROM Usuario u
+ INNER JOIN Reserva r
+    ON u.id_usuario = r.id_usuario;
+
+
+
+SELECT e.nome AS nome_estacionamento,
+       COUNT(r.id_reserva) AS total_reservas
+  FROM Estacionamento e
+ INNER JOIN Vaga_Estacionamento v
+    ON e.id_estacionamento = v.id_estacionamento
+ INNER JOIN Reserva r
+    ON v.id_vaga = r.id_vaga
+ GROUP BY e.nome;
+
+
+SELECT e.nome AS estacionamento,
+       NVL(AVG(a.nota), 0) AS media_nota
+  FROM Estacionamento e
+  LEFT JOIN Avaliacao a
+    ON e.id_estacionamento = a.id_estacionamento
+ GROUP BY e.nome;
+
+
+SELECT u.nome          AS usuario,
+       e.nome          AS estacionamento,
+       v.disponivel    AS vaga_disponivel,
+       r.data_reserva,
+       a.nota          AS nota_avaliacao
+  FROM Reserva r
+ INNER JOIN Usuario u
+    ON r.id_usuario = u.id_usuario
+ INNER JOIN Vaga_Estacionamento v
+    ON r.id_vaga = v.id_vaga
+ INNER JOIN Estacionamento e
+    ON v.id_estacionamento = e.id_estacionamento
+  LEFT JOIN Avaliacao a
+    ON u.id_usuario = a.id_usuario
+   AND e.id_estacionamento = a.id_estacionamento;
